@@ -11,6 +11,7 @@ class ml_arg(argparse.ArgumentParser):
         self._add('--test_data',dest="test_data",help="the file to give test sets")
         self._add('--log_file',dest="log_file",default="./",help="the folder to save the log")
         self._add('--valid_each',dest="valid_each",type=int,default=5,help="validate every # of epoches")
+        self._add('--metrics',dest="metrics",default="F1_score",help="the metrics used for measuring")
     def _add(self,*arg,**kwargs):
         super(ml_arg,self).add_argument(*arg,**kwargs)
 #     def parse_args(self,*arg,**kwargs):
