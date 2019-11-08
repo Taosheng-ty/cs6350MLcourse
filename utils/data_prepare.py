@@ -48,9 +48,11 @@ def get_data(arg):
     label_test=None
     if arg.test_data!=None:
             X_test, label_test, num_features=read_libsvm(arg.test_data)
+            print(X_test.shape)
+            X_test=X_test.toarray()
             ind=np.where(label_test==0)
             label_test[ind]=-1
             X_test=(X_test-np.mean(X_test,0))/(np.std(X_test,0)+1e-5)
-    data={"X_train":X_train,"label_train":label_train,"X_val":X_val,"label_val":label_val," X_test": X_test,"label_test":label_test}
+    data={"X_train":X_train,"label_train":label_train,"X_val":X_val,"label_val":label_val,"X_test": X_test,"label_test":label_test}
     data=Namespace(**data)
     return data
