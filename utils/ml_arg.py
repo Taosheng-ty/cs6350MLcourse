@@ -12,6 +12,8 @@ class ml_arg(argparse.ArgumentParser):
         self._add('--log_file',dest="log_file",default="./",help="the folder to save the log")
         self._add('--valid_each',dest="valid_each",type=int,default=5,help="validate every # of epoches")
         self._add('--metrics',dest="metrics",default="F1_score",help="the metrics used for measuring")
+        self._add('--n_interve',dest="n_interve",default=6,type=int,help="nuber of interve for each feature")
+        self._add('--tree_depth',dest="tree_depth",default=100,type=int,help="depth of the tree")
     def _add(self,*arg,**kwargs):
         super(ml_arg,self).add_argument(*arg,**kwargs)
 #     def parse_args(self,*arg,**kwargs):
