@@ -56,3 +56,24 @@ def get_data(arg):
     data={"X_train":X_train,"label_train":label_train,"X_val":X_val,"label_val":label_val,"X_test": X_test,"label_test":label_test}
     data=Namespace(**data)
     return data
+def data_loader(data,label,partition=5):
+    shuffle_n=np.arange(data.shape[0])
+#     print(data.shape[0])
+    np.random.shuffle(shuffle_n)
+    partition_size=int(data.shape[0]/partition)
+#     print(shuffle_n,partition_size)
+    five_folds=[shuffle_n[i*partition_size:(i+1)*partition_size] for i in range(partition)]
+#     print(five_folds)
+    h=np.arange(partition)
+    num=0
+    while True:
+        i=num%partition
+        num=num+1
+        data_val=data[five_folds[i],:]
+        label_val=label[five_folds[i]]
+        train_id=five_folds[:i]+five_folds[i+1:]
+        train_id=np.reshape(train_id,(-1))
+    #             print(train_id.shape)
+        data_train=data[train_id,:]
+        label_train=label[train_id,:]
+        yield (data_train,label_train,data_val,label_val)
