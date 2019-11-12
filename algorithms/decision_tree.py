@@ -9,6 +9,7 @@ from argparse import Namespace
 import numpy as np
 from datetime import datetime
 import math
+import pandas as pd
 inf= math.inf
 def cal_entropy(label):
         pois=np.where(label==1)
@@ -156,19 +157,29 @@ def batch_predic(X,label,tree_dec_np_entro,parse):
     array_pre=np.zeros(N)
     ind_actual=np.where(label==1)[0]
     ind_pred=[]
+    predict=[]
     for i in range(N):
         test=X[i,:]
-        if prediction(tree_dec_np_entro,test,0,parse)==1:
+        label_pre=prediction(tree_dec_np_entro,test,0,parse)
+        
+        predict.append(1 if label_pre==1 else 0)
+        if label_pre==1:
+#             print(label_pre)
 #             print("right")
             ind_pred.append(i)
         else:
             pass
     ind_pred=np.array(ind_pred)
+    predict=np.array(predict)
+    results={}
     
     if parse.metrics=="acc":
-        return array_pre.mean()
+         results["metrics"]=array_pre.mean()
     if parse.metrics=="F1_score":
-        return calculate_F1(ind_actual,ind_pred)
+        results["metrics"]= calculate_F1(ind_actual,ind_pred)
+    results["prediction"]=predict
+#     print(predict,"prediction")
+    return results
 if __name__=="__main__":
         arg=ml_arg()
         argg=arg.parse_args()
@@ -181,8 +192,14 @@ if __name__=="__main__":
         print(argg)
         re=itera_tree(data.X_train,data.label_train,parse=argg)
         tree_dec_np=conver2numpy(re)
-        print(tree_dec_np)
-        precision=batch_predic(data.X_test,data.label_test,tree_dec_np,argg)
-        print(precision)
+        results=batch_predic(data.X_test,data.label_test,tree_dec_np,argg)
+        print(results,"test")
+        results=batch_predic(data.X_train,data.label_train,tree_dec_np,argg)
+        print(results,"train")
+#         print(tree_dec_np)
+        results=batch_predic(data.X_val,data.label_val,tree_dec_np,argg)
+        print(results,"val")
+        data_xl=pd.DataFrame.from_dict(results["prediction"])
+        data_xl.to_csv(directory+"log"+str(datetime.now())+".csv")
         param=argg
-        os.rename(directory,param.log_file+"tree_depth "+str(param.tree_depth)+"n_interve"+str(param.n_interve)+"precision"+str(precision)+" metircs"+param.metrics+"    "+str(datetime.now()))
+        os.rename(directory,param.log_file+"tree_depth "+str(param.tree_depth)+"n_interve"+str(param.n_interve)+"precision"+str(results["metrics"])+" metircs"+param.metrics+"    "+str(datetime.now()))
