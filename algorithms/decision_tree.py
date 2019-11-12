@@ -148,8 +148,8 @@ def calculate_F1(ind_actual,ind_pred):
         tp=len(cross)
         fn=ind_actual.shape[0]
         fp=ind_pred.shape[0]
-        p=tp/(tp+fp)
-        r=tp/(tp+fn)
+        p=tp/(fp)
+        r=tp/(fn)
         f1_score=2*p*r/(p+r)
         return f1_score    
 def batch_predic(X,label,tree_dec_np_entro,parse):
@@ -180,6 +180,8 @@ def batch_predic(X,label,tree_dec_np_entro,parse):
     results["prediction"]=predict
 #     print(predict,"prediction")
     return results
+
+
 if __name__=="__main__":
         arg=ml_arg()
         argg=arg.parse_args()
@@ -192,14 +194,15 @@ if __name__=="__main__":
         print(argg)
         re=itera_tree(data.X_train,data.label_train,parse=argg)
         tree_dec_np=conver2numpy(re)
-        results=batch_predic(data.X_test,data.label_test,tree_dec_np,argg)
-        print(results,"test")
-        results=batch_predic(data.X_train,data.label_train,tree_dec_np,argg)
-        print(results,"train")
+
 #         print(tree_dec_np)
         results=batch_predic(data.X_val,data.label_val,tree_dec_np,argg)
         print(results,"val")
         data_xl=pd.DataFrame.from_dict(results["prediction"])
         data_xl.to_csv(directory+"log"+str(datetime.now())+".csv")
         param=argg
+        results=batch_predic(data.X_train,data.label_train,tree_dec_np,argg)
+        print(results,"train")
+        results=batch_predic(data.X_test,data.label_test,tree_dec_np,argg)
+        print(results,"test")
         os.rename(directory,param.log_file+"tree_depth "+str(param.tree_depth)+"n_interve"+str(param.n_interve)+"precision"+str(results["metrics"])+" metircs"+param.metrics+"    "+str(datetime.now()))
