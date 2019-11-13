@@ -107,6 +107,7 @@ def return_label(value,parse):
     ra[0]=-inf
     ra[-1]=inf
     ind=np.where(value>ra)
+#     print(ind[0][-1],"ind[0][-1]")
     return ind[0][-1]
     
 def prediction(tree_dec_np,test,i=0,parse=None):
@@ -121,7 +122,10 @@ def prediction(tree_dec_np,test,i=0,parse=None):
         label=tree_dec_np[0,i+1]
         return label
     ind_test=i+1
+#     print(tree_dec_np,"tree_dec_np[:,i+1]")
+#     print(test[attri],""test[attri])
     ind_match=np.where(tree_dec_np[:,i+1]==return_label(test[attri],parse))
+    
     tree_dec_np_prun=tree_dec_np[ind_match]
     #print(tree_dec_np.shape)
     #print(tree_dec_np_prun.shape)
@@ -132,12 +136,10 @@ def conver2numpy(tree_dec):
     
     
     #b = np.array([len(a),len(max(a,key = lambda x: len(x)))])
-    g=len(max(tree_dec,key = lambda x: len(x)))
+    g=len(max(tree_dec,key = lambda x: len(x)))+2
     b =  [[ None for y in range( g ) ] for x in range(len(tree_dec))]
     for i,j in enumerate(tree_dec):
-
         b[i][0:len(j)] = j
-
     return np.array(b)
 def calculate_F1(ind_actual,ind_pred):
 #         print(ind_actual,ind_pred)
@@ -148,6 +150,9 @@ def calculate_F1(ind_actual,ind_pred):
         tp=len(cross)
         fn=ind_actual.shape[0]
         fp=ind_pred.shape[0]
+        if fp*fn==0:
+            print(fp,fn,"this is fp and fn")
+            return 0
         p=tp/(fp)
         r=tp/(fn)
         f1_score=2*p*r/(p+r)
