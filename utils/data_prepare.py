@@ -75,5 +75,5 @@ def data_loader(data,label,partition=5):
         train_id=np.reshape(train_id,(-1))
     #             print(train_id.shape)
         data_train=data[train_id,:]
-        label_train=label[train_id,:]
+        label_train=label[train_id]
         yield (data_train,label_train,data_val,label_val)
