@@ -21,6 +21,8 @@ def calculate_metrics(x,label,W,b,param):
         tp=len(cross)
         fn=ind_actual[0].shape[0]
         fp=ind_pred[0].shape[0]
+        if fp*fn*tp==0:
+            return 0
         p=tp/(fp)
         r=tp/(fn)
         f1_score=2*p*r/(p+r)
@@ -211,10 +213,9 @@ def average_perceptron(X,label,X_val=None,label_val=None,param=None):
 
         
         train_acc=calculate_metrics(X,label,W,b,param)
-        print("epoch: #",str(j)," current "+ param.metrics +" is",str(train_acc))
-        epoch_train_acc.append(train_acc)
+        print("epoch: #",str(j)," current for training"+ param.metrics +" is",str(train_acc))
+# epoch_train_acc.append(train_acc)
         if j %param.valid_each==0:
-            
             val_acc=calculate_metrics(X_val,label_val,running_W,running_b,param)
             print("########################/n epoch: #",str(j)," current validating "+ param.metrics+"is",str(val_acc)+"########################/n ")
             if val_acc>best_val:
