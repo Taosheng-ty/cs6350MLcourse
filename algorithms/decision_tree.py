@@ -61,7 +61,8 @@ def get_subset(data,label,entropy_diffind,attribute,parse):
     ra=np.linspace(-1,1,parse.n_interve)
     ra[0]=-inf
     ra[-1]=inf
-    data_subset_ind =np.where((data[:,entropy_diffind]>ra[attribute])*(data[:,entropy_diffind]<ra[attribute+1]))
+    data_subset_ind =np.where((data[:,entropy_diffind]>ra[attribute])*(data[:,entropy_diffind]<=ra[attribute+1]))
+    
     return data[data_subset_ind],label[data_subset_ind]
 def itera_tree(X,label,X_test=None,label_test=None,X_val=None,label_val=None,param=None,num_iter=0,parse=None,string_=[],tree_decision=list()):
     maxi_iter=parse.tree_depth
@@ -69,12 +70,12 @@ def itera_tree(X,label,X_test=None,label_test=None,X_val=None,label_val=None,par
         tree_decision=list()
     num_iter1=num_iter+1
     string=string_[:]    
-#     print(X.shape)
+#     print(X.shape,"X.shape")
     entropy_diffind,entropy_diffmax=Entroy_tree(X,label,parse)
-#     print(entropy_diffind)
+#     print(entropy_diffind,entropy_diffmax,"entropy_diffind,entropy_diffmax")
     tag_num=label.shape[0]
     most_common=1 if label.mean()>0 else -1
-    
+#     print(parse)
     if entropy_diffmax ==0:
         
         string=string+["label"]+[most_common]
@@ -85,6 +86,8 @@ def itera_tree(X,label,X_test=None,label_test=None,X_val=None,label_val=None,par
             string_1=string[:] 
             
             data_subset,label_subset=get_subset(X,label,entropy_diffind, i,parse)
+#             print(i,"i",np.bincount(label_subset+1))
+#             print(x,"x")
             tag_num1=label_subset.shape[0]
 
             if tag_num1==0:
@@ -151,7 +154,7 @@ def calculate_F1(ind_actual,ind_pred):
         fn=ind_actual.shape[0]
         fp=ind_pred.shape[0]
         if fp*fn==0:
-            print(fp,fn,"this is fp and fn")
+#             print(fp,fn,"this is fp and fn")
             return 0
         p=tp/(fp)
         r=tp/(fn)
@@ -166,8 +169,12 @@ def batch_predic(X,label,tree_dec_np_entro,parse):
     for i in range(N):
         test=X[i,:]
         label_pre=prediction(tree_dec_np_entro,test,0,parse)
+#         print("********")
+#         print(test[tree_dec_np_entro[0][0]],"test")
+#         print(tree_dec_np_entro,"tree_dec_np_entro")
+#         print(label_pre,"label_pre")
         
-        predict.append(1 if label_pre==1 else 0)
+        predict.append(1 if label_pre==1 else -1)
         if label_pre==1:
 #             print(label_pre)
 #             print("right")
@@ -177,9 +184,10 @@ def batch_predic(X,label,tree_dec_np_entro,parse):
     ind_pred=np.array(ind_pred)
     predict=np.array(predict)
     results={}
-    
+    acc=np.where(predict==label)[0]
+    acc=acc.shape[0]/predict.shape[0]
     if parse.metrics=="acc":
-         results["metrics"]=array_pre.mean()
+         results["metrics"]=acc
     if parse.metrics=="F1_score":
         results["metrics"]= calculate_F1(ind_actual,ind_pred)
     results["prediction"]=predict
