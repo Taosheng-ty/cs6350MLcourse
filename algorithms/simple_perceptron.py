@@ -1,4 +1,4 @@
-
+# 
 import sys
 import os
 sys.path.append("..")
@@ -65,7 +65,7 @@ def calculate_F1(ind_actual,ind_pred):
         fn=ind_actual.shape[0]
         fp=ind_pred.shape[0]
         if fp*fn==0:
-            print(fp,fn,"this is fp and fn")
+#             print(fp,fn,"this is fp and fn")
             return 0
         p=tp/(fp)
         r=tp/(fn)
