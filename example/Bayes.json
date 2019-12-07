@@ -1,0 +1,11 @@
+{"learning_algorithm":"algorithms.Bayes","train_data":
+              "/home/taoyang/research/research_everyday/homework/ml6350/hw5/data/data_semeion/hand_data_train",
+             "val_data":"/home/taoyang/research/research_everyday/homework/ml6350/hw5/data/data_semeion/hand_data_train",
+             "test_data":"/home/taoyang/research/research_everyday/homework/ml6350/hw5/data/data_semeion/hand_data_test",
+             "metrics":"acc",
+              "norm":1,"binary":1,
+              "fold_num":5,
+"smooth_term":[2,1.5,1,0.5,0.1,0.05,0.001],
+ "neg_label":0,
+ "max_epoch":40,"validation":["smooth_term"],
+             "log_file":"/home/taoyang/research/research_everyday/mlprojects/log/"}
