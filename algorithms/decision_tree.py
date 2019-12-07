@@ -58,10 +58,8 @@ def Entroy_tree(data,label,parse):
         entropy_diffind=most_common
     return entropy_diffind,entropy_diffmax
 def get_subset(data,label,entropy_diffind,attribute,parse):
-    ra=np.linspace(-1,1,parse.n_interve)
-    ra[0]=-inf
-    ra[-1]=inf
-    data_subset_ind =np.where((data[:,entropy_diffind]>ra[attribute])*(data[:,entropy_diffind]<=ra[attribute+1]))
+        
+    data_subset_ind =np.where(data[:,entropy_diffind]==attribute)
     
     return data[data_subset_ind],label[data_subset_ind]
 def itera_tree(X,label,X_test=None,label_test=None,X_val=None,label_val=None,param=None,num_iter=0,parse=None,string_=[],tree_decision=list()):
@@ -82,7 +80,7 @@ def itera_tree(X,label,X_test=None,label_test=None,X_val=None,label_val=None,par
         tree_decision.append(string)
         return tree_decision
 
-    for i in range(parse.n_interve-1):
+    for i in range(parse.n_interve):
             string_1=string[:] 
             
             data_subset,label_subset=get_subset(X,label,entropy_diffind, i,parse)
@@ -102,7 +100,8 @@ def itera_tree(X,label,X_test=None,label_test=None,X_val=None,label_val=None,par
                 tree_decision.append(string_2)
                 continue
             string_2=string_1+[entropy_diffind]+[i]
-            tree_decision=itera_tree(data_subset,label_subset,string_=string_2,num_iter=num_iter1,tree_decision=tree_decision,parse=parse)
+            tree_decision=itera_tree(data_subset,label_subset,\
+                                     string_=string_2,num_iter=num_iter1,tree_decision=tree_decision,parse=parse)
      
     return    tree_decision
 def return_label(value,parse):
@@ -125,14 +124,11 @@ def prediction(tree_dec_np,test,i=0,parse=None):
         label=tree_dec_np[0,i+1]
         return label
     ind_test=i+1
-#     print(tree_dec_np,"tree_dec_np[:,i+1]")
-#     print(test[attri],""test[attri])
-    ind_match=np.where(tree_dec_np[:,i+1]==return_label(test[attri],parse))
+
+    ind_match=np.where(tree_dec_np[:,i+1]==test[attri])
     
     tree_dec_np_prun=tree_dec_np[ind_match]
-    #print(tree_dec_np.shape)
-    #print(tree_dec_np_prun.shape)
-    #print(tree_dec_np_prun)
+
     label=prediction(tree_dec_np_prun,test,i=i+2,parse=parse)
     return label
 def conver2numpy(tree_dec):
@@ -168,12 +164,9 @@ def batch_predic(X,label,tree_dec_np_entro,parse):
     predict=[]
     for i in range(N):
         test=X[i,:]
+#         print(label[i],"label[i]")
         label_pre=prediction(tree_dec_np_entro,test,0,parse)
-#         print("********")
-#         print(test[tree_dec_np_entro[0][0]],"test")
-#         print(tree_dec_np_entro,"tree_dec_np_entro")
 #         print(label_pre,"label_pre")
-        
         predict.append(1 if label_pre==1 else -1)
         if label_pre==1:
 #             print(label_pre)
@@ -184,6 +177,7 @@ def batch_predic(X,label,tree_dec_np_entro,parse):
     ind_pred=np.array(ind_pred)
     predict=np.array(predict)
     results={}
+#     print(predict,label)
     acc=np.where(predict==label)[0]
     acc=acc.shape[0]/predict.shape[0]
     if parse.metrics=="acc":
@@ -193,6 +187,48 @@ def batch_predic(X,label,tree_dec_np_entro,parse):
     results["prediction"]=predict
 #     print(predict,"prediction")
     return results
+
+
+
+class Decision_tree:
+    def train(self,X,label,X_val=None,label_val=None,num_iter=0,X_test=None,label_test=None,param=None,string_=[],tree_decision=list()):
+        re=itera_tree(X,label,parse=param)
+        tree_dec_np=conver2numpy(re)
+        results=batch_predic(X_val,label_val,tree_dec_np,param)
+        
+        results={"metrics":results["metrics"],"param":tree_dec_np}
+        return results
+    def predict(self,X,label,results,param):
+        parse=param
+        N=X.shape[0]
+        tree_dec_np_entro=results["param"]
+        array_pre=np.zeros(N)
+        ind_actual=np.where(label==1)[0]
+        ind_pred=[]
+        predict=[]
+        for i in range(N):
+            test=X[i,:]
+            label_pre=prediction(tree_dec_np_entro,test,0,param)
+
+            predict.append(1 if label_pre==1 else -1)
+            if label_pre==1:
+    #             print(label_pre)
+    #             print("right")
+                ind_pred.append(i)
+            else:
+                pass
+        ind_pred=np.array(ind_pred)
+        predict=np.array(predict)
+        results={}
+        acc=np.where(predict==label)[0]
+        acc=acc.shape[0]/predict.shape[0]
+        if parse.metrics=="acc":
+             results["metrics"]=acc
+        if parse.metrics=="F1_score":
+            results["metrics"]= calculate_F1(ind_actual,ind_pred)
+        results["prediction"]=predict
+    #     print(predict,"prediction")
+        return results
 
 
 if __name__=="__main__":
