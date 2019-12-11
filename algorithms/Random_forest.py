@@ -2,7 +2,8 @@ import os
 import sys
 sys.path.append("..")
 from utils import Logger
-from algorithms import *
+from algorithms.decision_tree import conver2numpy,batch_predic,Decision_tree,itera_tree
+from utils import calculate_F1
 from scipy.sparse import csr_matrix
 import numpy as np
 import json
@@ -97,7 +98,7 @@ class Random_forest:
         random_sample=parse.random_sample
         random_feature=parse.random_feature
         tree_total=[]
-        decision_tree=Decision_tree()
+        self.decision_tree=Decision_tree()
         for i in range(k_trees):
             n_feature=np.arange(X.shape[1])
             n_sample=np.arange(X.shape[0])[:random_sample]
@@ -111,14 +112,14 @@ class Random_forest:
             label_sample=label[n_sample]
 #             parse.tree_depth=1
 #             print(param,"in line 113")
-            tree=conver2numpy(itera_tree(X_sample,label_sample,param=parse))
+            tree=self.decision_tree.train(X_sample,label_sample,X_sample,label_sample,param=parse)["param"]
     #         print(tree,"tree",)
-            results1=batch_predic(X_sample,label_sample,tree,parse)
+#             results1=decision_tree.train(X_sample,label_sample,tree,parse)
 #             print(results1["metrics"],"in sample")
 #             to={"param":[tree]}
 #             results1=Random_forest_prediction(X_sample,label_sample,to,parse=parse)  
     #         print(results1["metrics"],"in random tree prediction")
-            
+#             print(tree[:,3])
             for i in range(parse.tree_depth):
                 for j in range(tree.shape[0]):
                     if type(tree[j,2*i])==int:
@@ -143,7 +144,8 @@ class Random_forest:
         tree_total=tree_total["param"]
         for i in range(len(tree_total)):
     #         print(tree_total[i][0],"fea")
-            results=batch_predic(X,label,tree_total[i],param)
+            tree_total_i={"param":tree_total[i]}
+            results=self.decision_tree.predict(X,label,tree_total_i,param)
             prediction.append(results["prediction"])
         prediction=np.array(prediction)
     #     print(prediction.shape,"prediction.shape")
