@@ -57,9 +57,7 @@ def split_data(X,param):
 def get_data(arg):
     X_val, label_val, num_features=read_libsvm(arg.val_data)
     X_train, label_train, num_features=read_libsvm(arg.train_data)
-
     X_anon, label_anon, num_features=read_libsvm(arg.anon_data)
-
     X_train=X_train.toarray()
     X_anon=X_anon.toarray()
     X_val=X_val.toarray()
@@ -73,7 +71,7 @@ def get_data(arg):
         
         X_train=(X_train-np.mean(X_train,0))/(np.std(X_train,0)+1e-5)
         X_val=(X_val-np.mean(X_val,0))/(np.std(X_val,0)+1e-5)
-        X_anon=(X_anon-np.mean(X_val,0))/(np.std(X_val,0)+1e-5)
+        X_anon=(X_anon-np.mean(X_anon,0))/(np.std(X_anon,0)+1e-5)
         if hasattr(arg,"n_interve"):
              X_train=split_data(X_train,arg)
              X_val=split_data( X_val,arg)
@@ -86,7 +84,7 @@ def get_data(arg):
     label_test=None
     if arg.test_data!=None:
             X_test, label_test, num_features=read_libsvm(arg.test_data)
-            print(X_test.shape)
+#             print(X_test.shape)
             X_test=X_test.toarray()
             ind=np.where(label_test==0)
             label_test[ind]=-1
