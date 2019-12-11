@@ -27,7 +27,7 @@ def cal_entropy_gain(data,label,attribute,parse):
     entropy_after=0
     number_tatal=label.shape[0]
 
-    for i in range(parse.n_interve-1):
+    for i in range(parse.n_interve):
         
         data_subset,label_subset=get_subset(data,label,attribute, i,parse)
         number_attr=label_subset.shape[0]
@@ -63,6 +63,11 @@ def get_subset(data,label,entropy_diffind,attribute,parse):
     
     return data[data_subset_ind],label[data_subset_ind]
 def itera_tree(X,label,X_test=None,label_test=None,X_val=None,label_val=None,param=None,num_iter=0,parse=None,string_=[],tree_decision=list()):
+    parse=param
+    if parse.binary==1:
+        parse.n_interve=2
+    if hasattr(parse,"n_interve"):
+        parse.n_interve=parse.n_interve    
     maxi_iter=parse.tree_depth
     if num_iter==0:
         tree_decision=list()
@@ -101,7 +106,7 @@ def itera_tree(X,label,X_test=None,label_test=None,X_val=None,label_val=None,par
                 continue
             string_2=string_1+[entropy_diffind]+[i]
             tree_decision=itera_tree(data_subset,label_subset,\
-                                     string_=string_2,num_iter=num_iter1,tree_decision=tree_decision,parse=parse)
+                                     string_=string_2,num_iter=num_iter1,tree_decision=tree_decision,param=parse)
      
     return    tree_decision
 def return_label(value,parse):
@@ -191,8 +196,10 @@ def batch_predic(X,label,tree_dec_np_entro,parse):
 
 
 class Decision_tree:
-    def train(self,X,label,X_val=None,label_val=None,num_iter=0,X_test=None,label_test=None,param=None,string_=[],tree_decision=list()):
-        re=itera_tree(X,label,parse=param)
+    def train(self,X,label,X_val=None,label_val=None,num_iter=0,\
+              X_test=None,label_test=None,param=None,string_=[],tree_decision=list()):
+       
+        re=itera_tree(X,label,param=param)
         tree_dec_np=conver2numpy(re)
         results=batch_predic(X_val,label_val,tree_dec_np,param)
         

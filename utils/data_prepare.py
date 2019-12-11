@@ -57,23 +57,31 @@ def split_data(X,param):
 def get_data(arg):
     X_val, label_val, num_features=read_libsvm(arg.val_data)
     X_train, label_train, num_features=read_libsvm(arg.train_data)
+
+    X_anon, label_anon, num_features=read_libsvm(arg.anon_data)
+
     X_train=X_train.toarray()
+    X_anon=X_anon.toarray()
     X_val=X_val.toarray()
     ind=np.where(label_val==0)
     label_val[ind]=-1
     ind=np.where(label_train==0)
     label_train[ind]=-1
-    
+    ind=np.where(label_anon==0)
+    label_anon[ind]=-1    
     if arg.norm==True:
         
         X_train=(X_train-np.mean(X_train,0))/(np.std(X_train,0)+1e-5)
         X_val=(X_val-np.mean(X_val,0))/(np.std(X_val,0)+1e-5)
+        X_anon=(X_anon-np.mean(X_val,0))/(np.std(X_val,0)+1e-5)
         if hasattr(arg,"n_interve"):
              X_train=split_data(X_train,arg)
              X_val=split_data( X_val,arg)
+             X_anon=split_data( X_anon,arg)
     if arg.binary == True:
         X_train=binary_data(X_train)
         X_val=binary_data(X_val)
+        X_anon=binary_data(X_anon)
     X_test=None
     label_test=None
     if arg.test_data!=None:
@@ -88,7 +96,9 @@ def get_data(arg):
                      X_test=split_data(X_test,arg)
             if arg.binary == True:
                 X_test=binary_data(X_test)
-    data={"X_train":X_train,"label_train":label_train,"X_val":X_val,"label_val":label_val,"X_test": X_test,"label_test":label_test}
+    data={"X_train":X_train,"label_train":label_train,"X_val":X_val,\
+          "label_val":label_val,"X_test": X_test,"label_test":label_test,\
+         "X_anon":X_anon,"label_anon":label_anon}
     data=Namespace(**data)
     return data
 def data_loader(data,label,partition=5):

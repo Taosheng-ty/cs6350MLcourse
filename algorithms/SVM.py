@@ -49,9 +49,13 @@ class Svm:
                 l=label[k]
     #             print(l*(x@W+b))
     #             print(W.mean())
+                lr=eta1
+                if hasattr(param,"pos_weight") and l==1:
+                    lr=eta1*param.pos_weight
+                
                 if l*(x@W+b)<=1:
 
-                        lr=eta1
+                        
                         W=(1-lr)*W+x*l*lr*d*C
                         b=(1-lr)*b+l*lr*d*C
     #                     print(b)
@@ -104,20 +108,10 @@ class Svm:
             val_acc=1-len(wrong_ind[0])/x.shape[0]
             prediction["metrics"]=val_acc
         if param.metrics=="F1_score":
-            ind_actual=np.where(label>=0)
-            ind_pred=np.where(x@W+b>=0)
-            ind_actual_set=set(ind_actual[0])
-            ind_pred_set=set(ind_pred[0])
-            cross=list(ind_actual_set.intersection(ind_pred_set))
-            tp=len(cross)
-            fn=ind_actual[0].shape[0]
-            fp=ind_pred[0].shape[0]
-            f1_score=0
-            if fp*fn!=0:
-                p=tp/(fp)
-                r=tp/(fn)
-                f1_score=2*p*r/(p+r)
-            prediction["metrics"]=f1_score
+            ind_actual=np.where(label>=0)[0]
+            ind_pred=np.where(x@W+b>=0)[0]
+            ratio=calculate_F1(ind_actual,ind_pred)
+            prediction["metrics"]=ratio
         return prediction
 
 

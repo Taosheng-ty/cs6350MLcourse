@@ -46,8 +46,11 @@ exp_settings=json.load(open(argg.json_file))
 
 algorithm=create_object(exp_settings['learning_algorithm'])
 argg=Namespace(**exp_settings)   
-
+if argg.binary==1:
+    argg.n_interve=2
 data=get_data(argg)
+# print(data.X_anon.shape,data.label_anon.shape,"anon shape")
+
 
 directory=argg.log_file+"current_"+argg.learning_algorithm+str(datetime.now())+"/"
 if not os.path.exists(directory):
@@ -94,7 +97,7 @@ while True:
         best_metrics=mean
         best_param_list=param_list
         best_learner=results_val
-        print("Found a better tree "+"with "+argg.metrics+" as "+str(best_metrics)+" when "+\
+        print("Found a better model "+"with "+argg.metrics+" as "+str(best_metrics)+" when "+\
               str(exp_settings["validation"])+"is "+str(best_param_list))
         print("save it as checkpoint in the directory "+directory+argg.metrics+" as "+str(best_metrics)+" when "+str(exp_settings["validation"])+"is "+str(best_param_list)+'.npz')
         np.savez(directory+argg.metrics+" as "+str(best_metrics)+" when "+str(exp_settings["validation"])+"is "+str(best_param_list)+'.npz',np.array(best_learner["param"]))
@@ -112,6 +115,7 @@ print("*******************************final training performance is ",results_ev
 results_eval=algorithm.predict(data.X_test,data.label_test,best_learner,best_cross_param)
 print("*******************************final test performance is ",results_eval["metrics"],"******************************")
 
+results_eval=algorithm.predict(data.X_anon,data.label_anon,best_learner,best_cross_param)
 neg_label=exp_settings["neg_label"]
 
 prediction=results_eval["prediction"]

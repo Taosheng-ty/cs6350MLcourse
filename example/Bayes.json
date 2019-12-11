@@ -1,5 +1,5 @@
 {"learning_algorithm":"algorithms.Bayes","train_data":
-              "/home/taoyang/research/research_everyday/homework/ml6350/hw5/data/data_semeion/hand_data_train",
+              "/home/taoyang/research/datasets/data/data/data-splits",
              "val_data":"/home/taoyang/research/research_everyday/homework/ml6350/hw5/data/data_semeion/hand_data_train",
              "test_data":"/home/taoyang/research/research_everyday/homework/ml6350/hw5/data/data_semeion/hand_data_test",
              "metrics":"acc",

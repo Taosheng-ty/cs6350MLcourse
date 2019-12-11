@@ -1,0 +1,18 @@
+{"learning_algorithm":"algorithms.Perceptron","train_data":
+              "/home/taoyang/research/datasets/data/data/data-splits/data.train",
+             "val_data":"/home/taoyang/research/datasets/data/data/data-splits/data.train",
+             "test_data":"/home/taoyang/research/datasets/data/data/data-splits/data.test",
+             "anon_data":"/home/taoyang/research/datasets/data/data/data-splits/data.eval.anon",
+             "metrics":"F1_score",
+              "norm":1,"binary":0,
+              "fold_num":5,
+"eta_1":[0.1,0.01,0.001,0.0001],
+ "eta_2":[0.1,0.01,0.001,0.0001],
+ "decay":1,
+ "valid_each":2,
+ "pos_weight":[1,2,3,4],
+ "C":[100,10,1,0.1,0.01],
+ "neg_label":0,
+ "verbose":0,
+ "maxium_epoch":11,"validation":["eta_1","eta_2"],
+             "log_file":"/home/taoyang/research/research_everyday/mlprojects/log/"}

@@ -1,19 +1,16 @@
-{"learning_algorithm":"algorithms.Decision_tree","train_data":
+{"learning_algorithm":"algorithms.Dnn","train_data":
               "/home/taoyang/research/research_everyday/homework/ml6350/hw5/data/data_madelon/madelon_data_train",
              "val_data":"/home/taoyang/research/research_everyday/homework/ml6350/hw5/data/data_madelon/madelon_data_train",
              "test_data":"/home/taoyang/research/research_everyday/homework/ml6350/hw5/data/data_madelon/madelon_data_test",
-             "metrics":"F1_score",
-              "norm":1,"binary":1,
+             "metrics":"acc",
+              "norm":1,"binary":0,
               "fold_num":5,
 "eta_1":[0.1,0.2,1,0.01,0.001],
  "eta_2":[0.1,0.2],
-
-  "tree_depth":[2,3,4],
  "decay":1,
- "binary":1,
  "valid_each":2,
  "C":[1,2,3,0.01,0.001],
  "neg_label":-1,
  "verbose":0,
- "maxium_epoch":11,"validation":["tree_depth"],
+ "maxium_epoch":11,"validation":["eta_1"],
              "log_file":"/home/taoyang/research/research_everyday/mlprojects/log/"}

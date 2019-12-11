@@ -11,7 +11,7 @@ from utils import ml_arg
 from utils import get_data
 def Random_forest_prediction(X,label,tree_total,parse=None):
     prediction=[]
-    tree_total=tree_total["random_tree"]
+    tree_total=tree_total["param"]
     for i in range(len(tree_total)):
 #         print(tree_total[i][0],"fea")
         results=batch_predic(X,label,tree_total[i],parse)
@@ -69,7 +69,7 @@ def Random_forest(X,label,X_val,label_val,parse=None,k_trees=100):
 #         print(tree,"tree",)
         results1=batch_predic(X_sample,label_sample,tree,parse)
 #         print(results1["metrics"],"in smaple")
-        to={"random_tree":[tree]}
+        to={"param":[tree]}
         results1=Random_forest_prediction(X_sample,label_sample,to,parse=parse)  
 #         print(results1["metrics"],"in random tree prediction")
         for i in range(parse.tree_depth):
@@ -80,11 +80,110 @@ def Random_forest(X,label,X_val,label_val,parse=None,k_trees=100):
 
 #         print(results1["metrics"])
         tree_total.append(tree)
-    resutls={"random_tree":tree_total}
+    resutls={"param":tree_total}
     uu=Random_forest_prediction(X_val,label_val,resutls,parse=parse)    
     print("performance on validation is "+parse.metrics+ str(uu["metrics"]))
     resutls["metrics"]=uu["metrics"]
     return resutls
+
+
+
+
+class Random_forest:
+    def train(self,X,label,X_val,label_val,param=None):
+        parse=param
+        k_trees=parse.k_trees
+#         setting=json.load(open(parse.json_file))
+        random_sample=parse.random_sample
+        random_feature=parse.random_feature
+        tree_total=[]
+        decision_tree=Decision_tree()
+        for i in range(k_trees):
+            n_feature=np.arange(X.shape[1])
+            n_sample=np.arange(X.shape[0])[:random_sample]
+    #         n_sample=np.random.randint(0,X.shape[0],random_sample)
+            np.random.shuffle(n_feature)
+            sample_feature=n_feature[0:random_feature] 
+    #         print(sample_feature,"sample_feature")
+            X_sample=X[n_sample,:]
+            X_sample=X_sample[:,sample_feature]
+    #         print(X_sample.shape,"X_sample.shape")
+            label_sample=label[n_sample]
+#             parse.tree_depth=1
+#             print(param,"in line 113")
+            tree=conver2numpy(itera_tree(X_sample,label_sample,param=parse))
+    #         print(tree,"tree",)
+            results1=batch_predic(X_sample,label_sample,tree,parse)
+#             print(results1["metrics"],"in sample")
+#             to={"param":[tree]}
+#             results1=Random_forest_prediction(X_sample,label_sample,to,parse=parse)  
+    #         print(results1["metrics"],"in random tree prediction")
+            
+            for i in range(parse.tree_depth):
+                for j in range(tree.shape[0]):
+                    if type(tree[j,2*i])==int:
+                        tree[j,2*i]=n_feature[tree[j,2*i]]
+    #         print(tree,"tree return")
+#             results1=batch_predic(X,label,tree,parse)
+
+#             print(results1["metrics"],"return in whole training")
+#             results1=batch_predic(X_val,label_val,tree,parse)
+
+#             print(results1["metrics"],"return in whole validating")
+            tree_total.append(tree)
+        resutls={"param":tree_total}
+#         uu=Random_forest_prediction(X_val,label_val,resutls,parse=parse)    
+#         print("Random_forest_prediction performance on validation is "+parse.metrics+ str(uu["metrics"]))
+        uu=self.predict(X_val,label_val,resutls,param=parse)    
+        print(" self.predict performance on validation  is "+parse.metrics+ str(uu["metrics"]))
+        resutls["metrics"]=uu["metrics"]
+        return resutls
+    def predict(self,X,label,tree_total,param=None):
+        prediction=[]
+        tree_total=tree_total["param"]
+        for i in range(len(tree_total)):
+    #         print(tree_total[i][0],"fea")
+            results=batch_predic(X,label,tree_total[i],param)
+            prediction.append(results["prediction"])
+        prediction=np.array(prediction)
+    #     print(prediction.shape,"prediction.shape")
+        forest_pred=np.ones(X.shape[0])
+        for i in range(prediction.shape[1]):
+    #         print(prediction[i,:10])
+            a=prediction[:,i]
+            counts = np.bincount(a+1)
+    #         print(counts,"counts")
+    #         print(label[i],"label[i]")
+            forest_pred[i]=np.argmax(counts)-1
+    #         print(forest_pred[i],"forest_pred[i]")
+    #         print(forest_pred)
+    #         if np.argmax(counts)==0:
+    #             forest_pred[i]=np.argmax(counts)
+    #     print(forest_pred.shape,label.shape,"forest_pred.shape,label.shape")
+        metrics=calculate_metrics(forest_pred,label,param)
+        feature=np.transpose(np.array(prediction))
+        final_results={"prediction":forest_pred,"metrics":metrics,"feature":feature}
+        return final_results
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if __name__=="__main__":
     arg=ml_arg()
