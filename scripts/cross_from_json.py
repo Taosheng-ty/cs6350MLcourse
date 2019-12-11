@@ -46,18 +46,20 @@ exp_settings=json.load(open(argg.json_file))
 
 algorithm=create_object(exp_settings['learning_algorithm'])
 argg=Namespace(**exp_settings)   
-if argg.binary==1:
-    argg.n_interve=2
-data=get_data(argg)
+# if argg.binary==1:
+#     argg.n_interve=2
+if "n_interve" not in exp_settings["validation"]:    
+    data=get_data(argg)
+    gene=data_loader(data.X_train,data.label_train,exp_settings['fold_num']) 
 # print(data.X_anon.shape,data.label_anon.shape,"anon shape")
+date_str=str(datetime.now()).replace(" ", "")
 
-
-directory=argg.log_file+"current_"+argg.learning_algorithm+str(datetime.now())+"/"
+directory=argg.log_file+"current_"+argg.learning_algorithm+date_str+"/"
 if not os.path.exists(directory):
     os.makedirs(directory)
 sys.stdout=Logger(directory+"log.txt")
 print(argg)
-gene=data_loader(data.X_train,data.label_train,exp_settings['fold_num']) 
+
 cross_param=get_cross_param(exp_settings)
 best_tree=None
 best_f1=0
@@ -65,7 +67,7 @@ best_cross_param=0
 best_C_trdeoff=0
 peformance={}
 peformance["learning_rate1"]=[]
-best_metrics=0
+best_metrics=-1
 
 best_param_list=None   
 cross_results={}
@@ -77,7 +79,10 @@ while True:
         argg=Namespace(**current_param)
     except:
         break
-
+    if "n_interve"  in exp_settings["validation"]:
+        data=get_data(argg)
+        gene=data_loader(data.X_train,data.label_train,exp_settings['fold_num']) 
+    
     per_ech=[]
     for m in range(exp_settings['fold_num']):
         train_x,train_label,val_x,val_label=next(gene)
@@ -102,7 +107,7 @@ while True:
         print("save it as checkpoint in the directory "+directory+argg.metrics+" as "+str(best_metrics)+" when "+str(exp_settings["validation"])+"is "+str(best_param_list)+'.npz')
         np.savez(directory+argg.metrics+" as "+str(best_metrics)+" when "+str(exp_settings["validation"])+"is "+str(best_param_list)+'.npz',np.array(best_learner["param"]))
                               
-
+data=get_data(best_cross_param)
 print("best_param" ,best_param_list,"for "+str(exp_settings["validation"]), "which we can get " ,argg.metrics+" as "+str(best_metrics)+"for validating")
 final_results=pd.DataFrame.from_dict(cross_results)
 final_results.to_csv(directory+"cross_validation_best metrics"+str(best_metrics)+".csv")
@@ -114,11 +119,27 @@ print("*******************************final training performance is ",results_ev
 
 results_eval=algorithm.predict(data.X_test,data.label_test,best_learner,best_cross_param)
 print("*******************************final test performance is ",results_eval["metrics"],"******************************")
+prediction=results_eval["prediction"]
+ind_pos=np.where(prediction==True)
+print(ind_pos[0].shape,"how many true predicted in test")
+ind_pos=np.where(data.label_test==True)
+print(ind_pos[0].shape,"how many true in label in test")
+
+
+
 
 results_eval=algorithm.predict(data.X_anon,data.label_anon,best_learner,best_cross_param)
 neg_label=exp_settings["neg_label"]
-
+# print(data.X_anon[1,:20])
 prediction=results_eval["prediction"]
+ind_pos=np.where(prediction==True)
+print(ind_pos[0].shape,"how many true")
+ind_pos=np.where(prediction==1)
+print(ind_pos[0].shape,"how many 1")
+print(data.X_anon[0:2,:100],"data.X_anon[0,:100]")
+
+prediction[ind_pos]=1
+print(prediction[:10])
 if neg_label==0:
     ind_neg=np.where(prediction==-1)
     prediction[ind_neg]=0
