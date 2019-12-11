@@ -156,5 +156,6 @@ class Dnn():
         logits=self.logits_fn(layer_out)
         metrics=self.get_metrics(logits,y,param)
         prediction = (logits>0.5).numpy()
+        prediction=np.sum(prediction,1)
         results={"metrics":metrics,"prediction":prediction}
         return results
