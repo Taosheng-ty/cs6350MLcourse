@@ -9,6 +9,7 @@ from argparse import Namespace
 import numpy as np
 from datetime import datetime
 import math
+from utils import calculate_F1
 import pandas as pd
 inf= math.inf
 def cal_entropy(label):
@@ -145,22 +146,7 @@ def conver2numpy(tree_dec):
     for i,j in enumerate(tree_dec):
         b[i][0:len(j)] = j
     return np.array(b)
-def calculate_F1(ind_actual,ind_pred):
-#         print(ind_actual,ind_pred)
-        ind_actual_set=set(ind_actual)
-        ind_pred_set=set(ind_pred)
-#         print(ind_actual_set,ind_pred_set)
-        cross=list(ind_actual_set.intersection(ind_pred_set))
-        tp=len(cross)
-        fn=ind_actual.shape[0]
-        fp=ind_pred.shape[0]
-        if fp*fn==0:
-#             print(fp,fn,"this is fp and fn")
-            return 0
-        p=tp/(fp)
-        r=tp/(fn)
-        f1_score=2*p*r/(p+r)
-        return f1_score    
+
 def batch_predic(X,label,tree_dec_np_entro,parse):
     N=X.shape[0]
     array_pre=np.zeros(N)
@@ -206,34 +192,35 @@ class Decision_tree:
         results={"metrics":results["metrics"],"param":tree_dec_np}
         return results
     def predict(self,X,label,results,param):
-        parse=param
-        N=X.shape[0]
-        tree_dec_np_entro=results["param"]
-        array_pre=np.zeros(N)
-        ind_actual=np.where(label==1)[0]
-        ind_pred=[]
-        predict=[]
-        for i in range(N):
-            test=X[i,:]
-            label_pre=prediction(tree_dec_np_entro,test,0,param)
+        results=batch_predic(X,label,results["param"],param)
+#         parse=param
+#         N=X.shape[0]
+#         tree_dec_np_entro=results["param"]
+#         array_pre=np.zeros(N)
+#         ind_actual=np.where(label==1)[0]
+#         ind_pred=[]
+#         predict=[]
+#         for i in range(N):
+#             test=X[i,:]
+#             label_pre=prediction(tree_dec_np_entro,test,0,param)
 
-            predict.append(1 if label_pre==1 else -1)
-            if label_pre==1:
-    #             print(label_pre)
-    #             print("right")
-                ind_pred.append(i)
-            else:
-                pass
-        ind_pred=np.array(ind_pred)
-        predict=np.array(predict)
-        results={}
-        acc=np.where(predict==label)[0]
-        acc=acc.shape[0]/predict.shape[0]
-        if parse.metrics=="acc":
-             results["metrics"]=acc
-        if parse.metrics=="F1_score":
-            results["metrics"]= calculate_F1(ind_actual,ind_pred)
-        results["prediction"]=predict
+#             predict.append(1 if label_pre==1 else -1)
+#             if label_pre==1:
+#     #             print(label_pre)
+#     #             print("right")
+#                 ind_pred.append(i)
+#             else:
+#                 pass
+#         ind_pred=np.array(ind_pred)
+#         predict=np.array(predict)
+#         results={}
+#         acc=np.where(predict==label)[0]
+#         acc=acc.shape[0]/predict.shape[0]
+#         if parse.metrics=="acc":
+#              results["metrics"]=acc
+#         if parse.metrics=="F1_score":
+#             results["metrics"]= calculate_F1(ind_actual,ind_pred)
+#         results["prediction"]=predict
     #     print(predict,"prediction")
         return results
 
